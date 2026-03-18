@@ -1,12 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
-  output   = "../lib/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -15,43 +8,63 @@ datasource db {
 }
 
 model User {
-  id     String @id @default(uuid())
-  name   String
-  email  String @unique
-  wallet String?
-  role   Role @default(USER)
-  createdAt DateTime @default(now())
-  reviews Review[]
-  payments Payment[]
-  attendance Attendance[]
+  id           String        @id @default(uuid())
+  name         String
+  email        String        @unique
+  wallet       String?
+  role         Role          @default(USER)
+  createdAt    DateTime      @default(now())
+  attendance   Attendance[]
+  certificates Certificate[]
+  payments     Payment[]
+  reviews      Review[]
 }
 
 model Payment {
-  id       String @id @default(uuid())
-  userId   String
-  amount   Float
+  id        String   @id @default(uuid())
+  userId    String
+  amount    Float
   reference String
   hashProof String?
   createdAt DateTime @default(now())
-  user     User  @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Review {
-  id     String @id @default(uuid())
-  content String
-  rating  Int
+  id        String   @id @default(uuid())
+  content   String
+  rating    Int
   hashProof String?
-  userId   String
+  userId    String
   createdAt DateTime @default(now())
-  user    User  @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Attendance {
-  id          String  @id @default(uuid())
-  userId      String
-  date        DateTime
-  hashProof   String?
-  user      User @relation(fields: [userId], references: [id])
+  id        String   @id @default(uuid())
+  userId    String
+  date      DateTime
+  hashProof String?
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Certificate {
+  id          String   @id @default(cuid())
+  userId      String?
+  certificateId String @unique
+  course         String
+  tokenId     String?
+  txHash      String?
+  metadataCid String?
+  bootcampId  String
+  email       String
+  issuedAt    DateTime @default(now())
+  studentId   String
+  studentName String
+  user        User?    @relation(fields: [userId], references: [id])
+
+  @@unique([studentId, bootcampId])
+  @@unique([userId, bootcampId])
 }
 
 enum Role {
