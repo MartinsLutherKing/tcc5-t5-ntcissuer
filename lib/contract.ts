@@ -1,19 +1,37 @@
 import { ethers } from "ethers";
-import ProofStorageABI from "../contracts/out/ProofStorage.sol/ProofStorage.json";
+import CertificateABI from "../certificate-contract/out/CertificateNFT.sol/CertificateNFT.json";
 
-export const getProofContract = async() => {
-    if(typeof window === "undefined") {
+export const getCertificateContract = async () => {
+    if (typeof window === "undefined") {
         throw new Error("Must be used in browser");
     }
-    if(!window.ethereum) {
+
+    if (!window.ethereum) {
         throw new Error("MetaMask is not installed");
     }
+
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
 
-    const contractAddress = process.env.NEXT_PUBLIC_PROOF_ADDRESS;
-    if(!contractAddress) {
-        throw new Error("Contract address not set in .env");
+    const contractAddress = process.env.NEXT_PUBLIC_CERTIFICATE_ADDRESS;
+    console.log("process.env:", process.env);
+    console.log("Contract address from env:", contractAddress);
+
+   if (!contractAddress || contractAddress === "0x0000000000000000000000000000000000000000") {
+  throw new Error("Invalid contract address");
+}
+    if (!ethers.isAddress(contractAddress)) {
+        throw new Error(`Invalid contract address: ${contractAddress}`);
     }
-    return new ethers. Contract (contractAddress, ProofStorageABI.abi, signer);
+
+    const contract = new ethers.Contract(
+        contractAddress,
+        CertificateABI.abi,
+        signer
+    );
+
+    console.log("Contract created:", contract);
+    console.log("Contract target:", contract.target);
+
+    return contract;
 };

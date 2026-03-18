@@ -1,18 +1,21 @@
 import Navbar from "@/components/Navbar";
 import WalletConnect from "@/components/WalletConnect";
-
+import CertificateForm from "@/components/CertificateForm";
 
 export default function Home() {
+  console.log("Page loaded, env var:", process.env.NEXT_PUBLIC_CERTIFICATE_ADDRESS);
   return (
     <>
       <Navbar />
+
       <div className="p-10">
         <WalletConnect />
       </div>
-      <main className="p-10 bg-blue-500 text-white text-2xl">
-      Web3 Capstone Template Working 
-    </main>
+
+
+      <div className="p-10">
+        <CertificateForm />
+      </div>
     </>
-    
   );
 }
