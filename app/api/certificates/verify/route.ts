@@ -27,6 +27,13 @@ export async function GET(req: Request) {
       );
     }
 
+    if (!certificate.user) {
+      return NextResponse.json(
+        { error: "Certificate user data not found" },
+        { status: 404 },
+      );
+    }
+
     return NextResponse.json({
       certificateId: certificate.certificateId,
       student: certificate.user.name,
@@ -35,8 +42,8 @@ export async function GET(req: Request) {
       course: certificate.course,
       tokenId: certificate.tokenId,
       txHash: certificate.txHash,
-      metadataURI: certificate.metadataURI,
-      issuedAt: certificate.createdAt,
+      metadataCid: certificate.metadataCid,
+      issuedAt: certificate.issuedAt,
     });
   } catch (error: any) {
     console.error(error);
