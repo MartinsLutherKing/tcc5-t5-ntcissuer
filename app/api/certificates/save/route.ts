@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { certificateId, tokenId, txHash, metadataURI } = body;
+    const { certificateId, tokenId, txHash, metadataCid } = body;
 
     const certificate = await prisma.certificate.findUnique({
       where: { certificateId },
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 
     const updated = await prisma.certificate.update({
       where: { certificateId },
-      data: { tokenId, txHash, metadataURI },
+      data: { tokenId, txHash, metadataCid },
     });
 
     return NextResponse.json({

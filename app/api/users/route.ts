@@ -27,3 +27,52 @@ export async function GET() {
   const users = await prisma.user.findMany();
   return NextResponse.json(users);
 }
+
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get("id");
+    const email = searchParams.get("email");
+
+    if (!userId && !email) {
+      return NextResponse.json(
+        { error: "Must provide either id or email query parameter" },
+        { status: 400 },
+      );
+    }
+
+    // Delete associated certificates first (to handle foreign key constraints)
+    if (userId) {
+      await prisma.certificate.deleteMany({
+        where: { userId },
+      });
+    } else if (email) {
+      const user = await prisma.user.findUnique({ where: { email } });
+      if (user) {
+        await prisma.certificate.deleteMany({
+          where: { userId: user.id },
+        });
+      }
+    }
+
+    // Delete the user
+    const whereClause = userId ? { id: userId } : { email: email! };
+    const deletedUser = await prisma.user.delete({
+      where: whereClause,
+    });
+
+    return NextResponse.json({
+      message: "User deleted successfully",
+      user: deletedUser,
+    });
+  } catch (error) {
+    console.error(error);
+    if (error instanceof Error && error.message.includes("not found")) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+    return NextResponse.json(
+      { error: "Failed to delete user" },
+      { status: 500 },
+    );
+  }
+}
